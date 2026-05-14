@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CloudScore</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Cloud Usage Intelligence</p>
+        <h1>CloudScore</h1>
+      </div>
+      <div class="status" aria-label="Data refresh status">
+        <span></span>
+        Sample profile loaded
+      </div>
+    </header>
+
+    <main>
+      <section class="score-panel" aria-labelledby="score-title">
+        <div>
+          <p class="eyebrow">Executive Health</p>
+          <h2 id="score-title">CloudScore <span id="score">--</span></h2>
+          <p id="score-reason" class="muted">Calculating cloud posture...</p>
+        </div>
+        <div class="score-ring" aria-label="CloudScore gauge">
+          <svg viewBox="0 0 120 120" role="img">
+            <circle class="track" cx="60" cy="60" r="48"></circle>
+            <circle id="score-arc" class="arc" cx="60" cy="60" r="48"></circle>
+          </svg>
+          <strong id="score-large">--</strong>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Cloud cost metrics">
+        <article>
+          <span>Total Cost</span>
+          <strong id="total-cost">--</strong>
+        </article>
+        <article>
+          <span>Monthly Forecast</span>
+          <strong id="forecast">--</strong>
+        </article>
+        <article>
+          <span>Estimated Savings</span>
+          <strong id="savings">--</strong>
+        </article>
+        <article>
+          <span>Open Findings</span>
+          <strong id="finding-count">--</strong>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">DEX Assistant</p>
+              <h2>Ask CloudScore</h2>
+            </div>
+          </div>
+          <form id="ask-form" class="ask-form">
+            <input id="question" type="text" value="Where can we save money this month?" aria-label="Question">
+            <button type="submit">Ask</button>
+          </form>
+          <div id="answer" class="answer"></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Portfolio</p>
+              <h2>Spend By Service</h2>
+            </div>
+          </div>
+          <div id="portfolio" class="bars"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Recommendations</p>
+            <h2>Findings</h2>
+          </div>
+          <select id="filter" aria-label="Filter findings">
+            <option value="all">All</option>
+            <option value="anomaly">Anomaly</option>
+            <option value="optimization">Optimization</option>
+            <option value="governance">Governance</option>
+          </select>
+        </div>
+        <div id="findings" class="findings"></div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
