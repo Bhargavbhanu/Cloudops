@@ -1,6 +1,6 @@
 # CloudScore Agent MVP
 
-CloudScore is a cloud usage intelligence starter based on the draft architecture in `CloudScore Arch.pdf`.
+CloudScore is a cloud usage intelligence.
 
 This MVP implements the first buildable slice:
 
