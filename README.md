@@ -2,6 +2,8 @@
 
 CloudScore is a cloud usage intelligence.
 
+Live dashboard: https://bhargavbhanu.github.io/Cloudops/
+
 This MVP implements the first buildable slice:
 
 - Read-only style data collection from local exported usage records
