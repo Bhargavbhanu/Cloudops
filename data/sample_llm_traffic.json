@@ -1,0 +1,30 @@
+[
+  {
+    "prompt": "Classify this customer support ticket as billing, login, bug, or account management.",
+    "task_category": "classification",
+    "monthly_volume": 950000,
+    "baseline_provider": "openai",
+    "baseline_model": "gpt-4o"
+  },
+  {
+    "prompt": "Summarize the following incident timeline for an executive postmortem. Include impact, root cause, action items, and owner.",
+    "task_category": "summarization",
+    "monthly_volume": 180000,
+    "baseline_provider": "anthropic",
+    "baseline_model": "claude-3-5-sonnet"
+  },
+  {
+    "prompt": "Generate a structured JSON analysis of LLM spend anomalies, provider latency, cache hit rate, and budget exhaustion risk.",
+    "task_category": "structured_output",
+    "monthly_volume": 78000,
+    "baseline_provider": "openai",
+    "baseline_model": "gpt-4o"
+  },
+  {
+    "prompt": "Debug this Python async worker and explain why retries are causing duplicate invoice generation.",
+    "task_category": "code_generation",
+    "monthly_volume": 42000,
+    "baseline_provider": "openai",
+    "baseline_model": "gpt-4o"
+  }
+]

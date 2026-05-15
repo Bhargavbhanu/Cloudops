@@ -1,0 +1,6 @@
+apiVersion: v2
+name: right-llm
+description: Autonomous LLM Cost Optimization and AI FinOps Platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

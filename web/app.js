@@ -1,189 +1,172 @@
-const usage = [
-  { project_id: "payments-prod", service: "BigQuery", usage_date: "2026-05-01", cost: 180.5, labels: { env: "prod", owner: "data-platform", business_unit: "payments" } },
-  { project_id: "payments-prod", service: "BigQuery", usage_date: "2026-05-02", cost: 190.25, labels: { env: "prod", owner: "data-platform", business_unit: "payments" } },
-  { project_id: "payments-prod", service: "BigQuery", usage_date: "2026-05-03", cost: 470.7, labels: { env: "prod", owner: "data-platform", business_unit: "payments" } },
-  { project_id: "ml-dev", service: "Compute Engine", usage_date: "2026-05-01", cost: 140.1, labels: { env: "dev", owner: "ml-platform", business_unit: "growth" } },
-  { project_id: "ml-dev", service: "Compute Engine", usage_date: "2026-05-02", cost: 145.4, labels: { env: "dev", owner: "ml-platform", business_unit: "growth" } },
-  { project_id: "ml-dev", service: "Compute Engine", usage_date: "2026-05-03", cost: 149.8, labels: { env: "dev", owner: "ml-platform", business_unit: "growth" } },
-  { project_id: "shared-tools", service: "Cloud Storage", usage_date: "2026-05-01", cost: 52.1, labels: { env: "unknown" } },
-  { project_id: "shared-tools", service: "Cloud Storage", usage_date: "2026-05-02", cost: 52.75, labels: { env: "unknown" } },
-  { project_id: "shared-tools", service: "Cloud Storage", usage_date: "2026-05-03", cost: 53.2, labels: { env: "unknown" } }
+const models = [
+  { provider: "Google", model: "Gemini Flash", workload: "Simple tasks", cost: 0.00038, quality: 86, latency: 930, savings: 96 },
+  { provider: "AWS Bedrock", model: "Claude Haiku", workload: "Extraction + RAG", cost: 0.0015, quality: 84, latency: 950, savings: 88 },
+  { provider: "Anthropic", model: "Claude Sonnet", workload: "Moderate reasoning", cost: 0.018, quality: 95, latency: 1950, savings: 28 },
+  { provider: "OpenAI", model: "GPT-4o", workload: "Complex reasoning", cost: 0.02, quality: 96, latency: 2100, savings: 0 },
+  { provider: "Groq", model: "Llama 70B", workload: "Low-latency chat", cost: 0.0011, quality: 88, latency: 520, savings: 91 }
 ];
 
-const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
-const profile = buildProfile(usage);
+const routingRows = [
+  { task: "Classification", route: "Google / Gemini Flash", reason: "Low complexity, high volume, budget guardrail active", savings: "$1.2M" },
+  { task: "RAG Search", route: "AWS Bedrock / Claude Haiku", reason: "Compliant provider, strong extraction quality", savings: "$620K" },
+  { task: "Code Generation", route: "OpenAI / GPT-4o", reason: "Quality floor requires frontier reasoning", savings: "$0" },
+  { task: "Summarization", route: "Groq / Llama 70B", reason: "Latency-sensitive and cache-friendly", savings: "$410K" }
+];
 
-function buildProfile(records) {
-  const totalCost = round(records.reduce((sum, item) => sum + item.cost, 0));
-  const dailyTotals = groupSum(records, "usage_date");
-  const forecastMonthlyCost = round(avg(Object.values(dailyTotals)) * 30);
-  const portfolio = groupSum(records, "service");
-  const findings = [
-    ...detectAnomalies(records),
-    ...optimizationFindings(records),
-    ...governanceFindings(records)
-  ];
-  const penalty = findings.reduce((sum, finding) => {
-    if (finding.severity === "high") return sum + 18;
-    if (finding.severity === "medium") return sum + 9;
-    return sum;
-  }, forecastMonthlyCost > 10000 ? 5 : 0);
-  const score = Math.max(0, Math.min(100, 100 - penalty));
-  return {
-    totalCost,
-    forecastMonthlyCost,
-    portfolio,
-    findings,
-    score,
-    scoreReason: score >= 85
-      ? "Strong usage hygiene with manageable opportunities."
-      : score >= 65
-        ? "Healthy baseline, but optimization and governance need attention."
-        : "Material risks or savings opportunities need immediate action."
-  };
+const policies = [
+  ["Premium model restriction", "Interns and contractors route away from frontier models unless approved."],
+  ["Token budget enforcement", "Requests above 120k tokens are compressed and pruned before routing."],
+  ["Provider compliance", "HIPAA workloads require OpenAI, Anthropic, Azure OpenAI, or Bedrock."],
+  ["Runaway protection", "Near-limit teams are downgraded, throttled, and alerted automatically."]
+];
+
+const cacheLayers = [
+  ["L1", "Exact Match", "11% hit rate"],
+  ["L2", "Semantic Similarity", "18% hit rate"],
+  ["L3", "Summary Cache", "4% hit rate"],
+  ["L4", "Conversation Context", "Preview"]
+];
+
+const forecast = [
+  ["Week 1", 62, 18],
+  ["Week 2", 72, 29],
+  ["Week 3", 88, 41],
+  ["Week 4", 106, 52],
+  ["Week 5", 124, 61]
+];
+
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 4 });
+
+function estimateTokens(text) {
+  return Math.max(1, Math.ceil(text.trim().split(/\s+/).length * 1.08));
 }
 
-function groupSum(records, key) {
-  return records.reduce((totals, item) => {
-    totals[item[key]] = round((totals[item[key]] || 0) + item.cost);
-    return totals;
-  }, {});
+function routeRequest(prompt, task) {
+  const promptTokens = estimateTokens(prompt);
+  const simpleTasks = ["classification", "extraction", "summarization"];
+  let selected = models[2];
+  if (simpleTasks.includes(task)) selected = models[0];
+  if (task === "code_generation" || task === "complex_reasoning") selected = models[3];
+  if (task === "analytics" || task === "structured_output") selected = models[2];
+  const outputTokens = Math.min(1024, Math.max(48, Math.round(promptTokens * 0.55)));
+  const baselineCost = (promptTokens / 1000) * 0.005 + (outputTokens / 1000) * 0.015;
+  const selectedCost = selected.cost * (promptTokens + outputTokens);
+  const savings = Math.max(0, baselineCost - selectedCost);
+  const cacheHit = prompt.toLowerCase().includes("may llm spend");
+  return { selected, promptTokens, outputTokens, baselineCost, selectedCost: cacheHit ? 0 : selectedCost, savings, cacheHit };
 }
 
-function detectAnomalies(records) {
-  const byService = records.reduce((groups, item) => {
-    groups[item.service] ||= [];
-    groups[item.service].push(item);
-    return groups;
-  }, {});
-  return Object.entries(byService).flatMap(([service, items]) => {
-    if (items.length < 3) return [];
-    const baseline = avg(items.map((item) => item.cost));
-    return items
-      .filter((item) => baseline > 0 && item.cost >= baseline * 1.6 && item.cost - baseline >= 25)
-      .map((item) => ({
-        category: "anomaly",
-        severity: "high",
-        title: `Spend spike in ${service}`,
-        description: `${service} cost reached ${money.format(item.cost)} on ${item.usage_date}, above its ${money.format(baseline)} daily baseline.`,
-        estimatedMonthlySavings: 0,
-        recommendation: "Review recent deployments, traffic changes, and resource scale settings for this service."
-      }));
-  });
-}
-
-function optimizationFindings(records) {
-  const grouped = records.reduce((groups, item) => {
-    const env = item.labels.env || "unknown";
-    const key = `${item.project_id}|${item.service}|${env}`;
-    groups[key] ||= { project: item.project_id, service: item.service, env, cost: 0 };
-    groups[key].cost += item.cost;
-    return groups;
-  }, {});
-  return Object.values(grouped)
-    .filter((item) => ["dev", "test", "unknown"].includes(item.env) && item.cost >= 100)
-    .map((item) => ({
-      category: "optimization",
-      severity: "medium",
-      title: `Tune non-production ${item.service} spend`,
-      description: `${item.project} spends ${money.format(item.cost)} on ${item.service} in ${item.env}.`,
-      estimatedMonthlySavings: round(item.cost * 0.25),
-      recommendation: "Apply schedules, right-size resources, and remove idle capacity from non-production workloads."
-    }));
-}
-
-function governanceFindings(records) {
-  const unassignedCost = records
-    .filter((item) => !item.labels.owner || !item.labels.business_unit)
-    .reduce((sum, item) => sum + item.cost, 0);
-  if (!unassignedCost) return [];
-  return [{
-    category: "governance",
-    severity: "medium",
-    title: "Unassigned cloud spend",
-    description: `${money.format(unassignedCost)} has missing owner or business unit metadata.`,
-    estimatedMonthlySavings: 0,
-    recommendation: "Enforce labels for owner, business_unit, environment, application, and cost_center."
-  }];
-}
-
-function answerQuestion(question) {
-  const q = question.toLowerCase();
-  let focus = "overall cloud usage";
-  let findings = profile.findings.slice(0, 5);
-  if (["save", "saving", "optimize", "recommend"].some((term) => q.includes(term))) {
-    focus = "savings and optimization";
-    findings = profile.findings.filter((finding) => finding.category === "optimization");
-  } else if (["anomaly", "anomalies", "spike", "increase", "why"].some((term) => q.includes(term))) {
-    focus = "anomalies";
-    findings = profile.findings.filter((finding) => finding.category === "anomaly");
-  } else if (["governance", "label", "owner", "chargeback"].some((term) => q.includes(term))) {
-    focus = "governance";
-    findings = profile.findings.filter((finding) => finding.category === "governance");
-  }
-  const savings = round(findings.reduce((sum, finding) => sum + finding.estimatedMonthlySavings, 0));
-  const top = findings[0];
-  if (!top) return `CloudScore is ${profile.score}. No matching ${focus} findings were detected.`;
-  const savingsText = savings ? ` Estimated monthly savings: ${money.format(savings)}.` : "";
-  return `CloudScore is ${profile.score}. Top ${focus} issue: ${top.title}. ${top.description}${savingsText}`;
-}
-
-function render() {
-  const savings = round(profile.findings.reduce((sum, finding) => sum + finding.estimatedMonthlySavings, 0));
-  document.querySelector("#score").textContent = profile.score;
-  document.querySelector("#score-large").textContent = profile.score;
-  document.querySelector("#score-reason").textContent = profile.scoreReason;
-  document.querySelector("#total-cost").textContent = money.format(profile.totalCost);
-  document.querySelector("#forecast").textContent = money.format(profile.forecastMonthlyCost);
-  document.querySelector("#savings").textContent = money.format(savings);
-  document.querySelector("#finding-count").textContent = profile.findings.length;
-  document.querySelector("#score-arc").style.strokeDashoffset = String(302 - (302 * profile.score) / 100);
-  renderPortfolio();
-  renderFindings();
-  document.querySelector("#answer").textContent = answerQuestion(document.querySelector("#question").value);
-}
-
-function renderPortfolio() {
-  const max = Math.max(...Object.values(profile.portfolio));
-  document.querySelector("#portfolio").innerHTML = Object.entries(profile.portfolio)
-    .sort((a, b) => b[1] - a[1])
-    .map(([service, cost]) => `
-      <div class="bar-row">
-        <strong>${service}</strong>
-        <div class="bar-track"><div class="bar-fill" style="width: ${(cost / max) * 100}%"></div></div>
-        <span>${money.format(cost)}</span>
+function renderRouting() {
+  document.querySelector("#routing-table").innerHTML = `
+    <div class="table-row table-head"><span>Task</span><span>Selected route</span><span>Decision reason</span><span>Savings</span></div>
+    ${routingRows.map((row) => `
+      <div class="table-row">
+        <strong>${row.task}</strong>
+        <span>${row.route}</span>
+        <span>${row.reason}</span>
+        <strong>${row.savings}</strong>
       </div>
-    `).join("");
+    `).join("")}`;
 }
 
-function renderFindings() {
-  const filter = document.querySelector("#filter").value;
-  const findings = filter === "all"
-    ? profile.findings
-    : profile.findings.filter((finding) => finding.category === filter);
-  document.querySelector("#findings").innerHTML = findings.map((finding) => `
-    <article class="finding">
-      <div class="finding-head">
-        <h3>${finding.title}</h3>
-        <span class="tag ${finding.severity}">${finding.severity}</span>
-      </div>
-      <p>${finding.description}</p>
-      <p class="recommendation"><strong>Action:</strong> ${finding.recommendation}</p>
+function renderCache() {
+  document.querySelector("#cache-layers").innerHTML = cacheLayers.map(([level, name, stat]) => `
+    <div class="stack-item">
+      <span>${level}</span>
+      <strong>${name}</strong>
+      <small>${stat}</small>
+    </div>
+  `).join("");
+}
+
+function renderBudget() {
+  document.querySelector("#budget-fill").style.width = "68%";
+  document.querySelector("#budget-status").innerHTML = [
+    ["Organization", "$342K / $500K", "healthy"],
+    ["Customer AI", "$91K / $100K", "warning"],
+    ["Internal Agents", "$44K / $80K", "healthy"]
+  ].map(([name, spend, status]) => `<div><span>${name}</span><strong>${spend}</strong><em class="${status}">${status}</em></div>`).join("");
+}
+
+function renderAdvisor() {
+  const maxCost = Math.max(...models.map((model) => model.cost));
+  document.querySelector("#advisor-chart").innerHTML = models.map((model) => `
+    <div class="bubble" style="left:${(model.cost / maxCost) * 82 + 6}%; bottom:${model.quality - 68}%">
+      <span>${model.provider}</span>
+    </div>
+  `).join("") + `<span class="axis x">Monthly cost →</span><span class="axis y">Quality →</span>`;
+}
+
+function renderMigration() {
+  document.querySelector("#migration-card").innerHTML = `
+    <strong>GPT-4o → Gemini Flash</strong>
+    <div><span>Cost reduction</span><b>96.1%</b></div>
+    <div><span>Latency change</span><b>-1.17s</b></div>
+    <div><span>Quality risk</span><b>0.10</b></div>
+    <div><span>Confidence</span><b>82%</b></div>
+  `;
+}
+
+function renderProviders() {
+  document.querySelector("#provider-health").innerHTML = models.map((model) => `
+    <div class="stack-item">
+      <span>${model.provider}</span>
+      <strong>${model.latency}ms p95</strong>
+      <small>${model.quality}% quality</small>
+    </div>
+  `).join("");
+}
+
+function renderPolicies() {
+  document.querySelector("#policy-list").innerHTML = policies.map(([title, body]) => `
+    <article>
+      <strong>${title}</strong>
+      <p>${body}</p>
     </article>
   `).join("");
 }
 
-function avg(values) {
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
+function renderForecast() {
+  const max = Math.max(...forecast.map((row) => row[1]));
+  document.querySelector("#forecast-chart").innerHTML = forecast.map(([label, spend, savings]) => `
+    <div class="forecast-col">
+      <div class="bars-pair">
+        <span class="spend" style="height:${(spend / max) * 100}%"></span>
+        <span class="save" style="height:${(savings / max) * 100}%"></span>
+      </div>
+      <small>${label}</small>
+    </div>
+  `).join("");
 }
 
-function round(value) {
-  return Math.round(value * 100) / 100;
-}
-
-document.querySelector("#ask-form").addEventListener("submit", (event) => {
+function renderGatewayResult(event) {
   event.preventDefault();
-  document.querySelector("#answer").textContent = answerQuestion(document.querySelector("#question").value);
-});
-document.querySelector("#filter").addEventListener("change", renderFindings);
-render();
+  const prompt = document.querySelector("#prompt").value;
+  const task = document.querySelector("#task").value;
+  const result = routeRequest(prompt, task);
+  document.querySelector("#gateway-result").innerHTML = `
+    <div><span>Selected provider</span><strong>${result.selected.provider} / ${result.selected.model}</strong></div>
+    <div><span>Tokens</span><strong>${result.promptTokens + result.outputTokens}</strong></div>
+    <div><span>Estimated request cost</span><strong>${money.format(result.selectedCost)}</strong></div>
+    <div><span>Cache</span><strong>${result.cacheHit ? "L2 semantic hit" : "Write scheduled"}</strong></div>
+    <p>${result.selected.workload} route selected with ${result.selected.quality}% quality score and ${result.selected.latency}ms p95 latency.</p>
+  `;
+}
+
+function init() {
+  renderRouting();
+  renderCache();
+  renderBudget();
+  renderAdvisor();
+  renderMigration();
+  renderProviders();
+  renderPolicies();
+  renderForecast();
+  document.querySelector("#gateway-form").addEventListener("submit", renderGatewayResult);
+  document.querySelector("#theme-toggle").addEventListener("click", () => {
+    document.documentElement.toggleAttribute("data-dark");
+  });
+  document.querySelector("#gateway-form").dispatchEvent(new Event("submit", { cancelable: true }));
+}
+
+init();

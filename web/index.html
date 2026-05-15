@@ -3,96 +3,160 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CloudScore</title>
+    <title>Right LLM</title>
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Cloud Usage Intelligence</p>
-        <h1>CloudScore</h1>
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <span>R</span>
+        <div>
+          <strong>Right LLM</strong>
+          <small>AI FinOps OS</small>
+        </div>
       </div>
-      <div class="status" aria-label="Data refresh status">
-        <span></span>
-        Sample profile loaded
-      </div>
-    </header>
+      <nav>
+        <a class="active" href="#overview">Overview</a>
+        <a href="#routing">Intelligent Routing</a>
+        <a href="#cache">Semantic Cache</a>
+        <a href="#budgets">Budget Governance</a>
+        <a href="#advisor">Best Models</a>
+        <a href="#migration">Migration Advisor</a>
+        <a href="#providers">Provider Analytics</a>
+        <a href="#governance">Governance Center</a>
+        <a href="#forecast">Forecasting</a>
+      </nav>
+      <button id="theme-toggle" class="icon-button" aria-label="Toggle theme">◐</button>
+    </aside>
 
     <main>
-      <section class="score-panel" aria-labelledby="score-title">
+      <header class="topbar">
         <div>
-          <p class="eyebrow">Executive Health</p>
-          <h2 id="score-title">CloudScore <span id="score">--</span></h2>
-          <p id="score-reason" class="muted">Calculating cloud posture...</p>
+          <p class="eyebrow">Autonomous LLM Cost Optimization</p>
+          <h1>Right LLM</h1>
         </div>
-        <div class="score-ring" aria-label="CloudScore gauge">
-          <svg viewBox="0 0 120 120" role="img">
-            <circle class="track" cx="60" cy="60" r="48"></circle>
-            <circle id="score-arc" class="arc" cx="60" cy="60" r="48"></circle>
-          </svg>
-          <strong id="score-large">--</strong>
+        <div class="live-status">
+          <span></span>
+          Gateway live
         </div>
-      </section>
+      </header>
 
-      <section class="metrics" aria-label="Cloud cost metrics">
-        <article>
-          <span>Total Cost</span>
-          <strong id="total-cost">--</strong>
-        </article>
-        <article>
-          <span>Monthly Forecast</span>
-          <strong id="forecast">--</strong>
-        </article>
-        <article>
-          <span>Estimated Savings</span>
-          <strong id="savings">--</strong>
-        </article>
-        <article>
-          <span>Open Findings</span>
-          <strong id="finding-count">--</strong>
-        </article>
-      </section>
-
-      <section class="workspace">
-        <div class="panel">
-          <div class="section-head">
+      <section id="overview" class="hero-grid">
+        <article class="command-panel">
+          <div class="panel-head">
             <div>
-              <p class="eyebrow">DEX Assistant</p>
-              <h2>Ask CloudScore</h2>
+              <p class="eyebrow">AI Gateway</p>
+              <h2>Optimize a live request</h2>
             </div>
+            <span class="pill">Policy enforced</span>
           </div>
-          <form id="ask-form" class="ask-form">
-            <input id="question" type="text" value="Where can we save money this month?" aria-label="Question">
-            <button type="submit">Ask</button>
+          <form id="gateway-form" class="gateway-form">
+            <textarea id="prompt" aria-label="Prompt">Summarize the May LLM spend dashboard for the executive team, identify budget risk, provider latency, semantic cache contribution, and recommended autonomous actions.</textarea>
+            <div class="form-row">
+              <select id="task" aria-label="Task category">
+                <option value="summarization">Summarization</option>
+                <option value="classification">Classification</option>
+                <option value="extraction">Extraction</option>
+                <option value="analytics">Analytics</option>
+                <option value="structured_output">Structured Output</option>
+                <option value="code_generation">Code Generation</option>
+                <option value="complex_reasoning">Complex Reasoning</option>
+              </select>
+              <button type="submit">Route Request</button>
+            </div>
           </form>
-          <div id="answer" class="answer"></div>
-        </div>
+          <div id="gateway-result" class="result"></div>
+        </article>
 
-        <div class="panel">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Portfolio</p>
-              <h2>Spend By Service</h2>
-            </div>
-          </div>
-          <div id="portfolio" class="bars"></div>
-        </div>
+        <section class="kpis" aria-label="Platform KPIs">
+          <article><span>Monthly Savings</span><strong id="monthly-savings">$2.8M</strong><small>46% optimized</small></article>
+          <article><span>Token Reduction</span><strong id="token-reduction">38%</strong><small>compression + cache</small></article>
+          <article><span>Cache Hit Rate</span><strong id="cache-hit">31%</strong><small>L1/L2 semantic</small></article>
+          <article><span>P95 Latency</span><strong id="p95">940ms</strong><small>SLA 2.2s</small></article>
+        </section>
       </section>
 
-      <section class="panel">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Recommendations</p>
-            <h2>Findings</h2>
+      <section class="dashboard-grid">
+        <article id="routing" class="panel wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Traffic Orchestration</p>
+              <h2>Routing decisions by workload</h2>
+            </div>
           </div>
-          <select id="filter" aria-label="Filter findings">
-            <option value="all">All</option>
-            <option value="anomaly">Anomaly</option>
-            <option value="optimization">Optimization</option>
-            <option value="governance">Governance</option>
-          </select>
-        </div>
-        <div id="findings" class="findings"></div>
+          <div id="routing-table" class="table"></div>
+        </article>
+
+        <article id="cache" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Semantic Cache</p>
+              <h2>Cache layers</h2>
+            </div>
+          </div>
+          <div id="cache-layers" class="stack"></div>
+        </article>
+
+        <article id="budgets" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Governance</p>
+              <h2>Budget posture</h2>
+            </div>
+          </div>
+          <div class="budget-meter"><span id="budget-fill"></span></div>
+          <div id="budget-status" class="status-list"></div>
+        </article>
+
+        <article id="advisor" class="panel wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">AI Model Advisor</p>
+              <h2>Cost-quality frontier</h2>
+            </div>
+          </div>
+          <div id="advisor-chart" class="chart"></div>
+        </article>
+
+        <article id="migration" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Migration Simulator</p>
+              <h2>Provider switch analysis</h2>
+            </div>
+          </div>
+          <div id="migration-card" class="migration-card"></div>
+        </article>
+
+        <article id="providers" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Observability</p>
+              <h2>Provider health</h2>
+            </div>
+          </div>
+          <div id="provider-health" class="stack"></div>
+        </article>
+
+        <article id="governance" class="panel wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Policy Engine</p>
+              <h2>Active enterprise policies</h2>
+            </div>
+          </div>
+          <div id="policy-list" class="policy-grid"></div>
+        </article>
+
+        <article id="forecast" class="panel wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Forecasting</p>
+              <h2>Spend forecast and optimization contribution</h2>
+            </div>
+          </div>
+          <div id="forecast-chart" class="forecast"></div>
+        </article>
       </section>
     </main>
 

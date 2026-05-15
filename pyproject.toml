@@ -1,0 +1,28 @@
+[project]
+name = "right-llm"
+version = "1.0.0"
+description = "Provider-agnostic Autonomous LLM Cost Optimization and AI FinOps Platform"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "litellm>=1.50.0",
+  "sqlalchemy>=2.0.0",
+  "asyncpg>=0.29.0",
+  "redis>=5.0.0",
+  "celery>=5.4.0",
+  "qdrant-client>=1.11.0",
+  "prometheus-client>=0.20.0",
+  "opentelemetry-sdk>=1.26.0",
+  "python-jose[cryptography]>=3.3.0",
+  "passlib[bcrypt]>=1.7.4"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0", "ruff>=0.6.0", "mypy>=1.11.0"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

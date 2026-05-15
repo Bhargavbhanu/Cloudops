@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: right-llm-api
+  namespace: right-llm
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: right-llm-api
+  template:
+    metadata:
+      labels:
+        app: right-llm-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/right-llm-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: right-llm-secrets
+                  key: database-url
+            - name: REDIS_URL
+              value: redis://right-llm-redis:6379/0
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
