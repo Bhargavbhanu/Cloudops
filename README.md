@@ -3,7 +3,6 @@
 Right LLM is an Autonomous LLM Cost Optimization and AI FinOps Platform. It sits between enterprise applications and LLM providers as a provider-agnostic optimization layer for routing, semantic caching, token reduction, budget governance, migration analysis, forecasting, observability, and autonomous optimization actions.
 
 Live GitHub Pages dashboard: 
-https://app.cloudscore.ai/tokenmind
 https://bhargavbhanu.github.io/Cloudops/
 
 The repository contains a working backend core, local API server, static enterprise dashboard, Next.js 15 production console scaffold, tests, and cloud deployment assets.
